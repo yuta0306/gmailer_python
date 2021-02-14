@@ -1,10 +1,3 @@
-# uncompyle6 version 3.7.4
-# Python bytecode 3.8 (3413)
-# Decompiled from: Python 3.8.0 (default, Nov  6 2019, 15:49:01) 
-# [Clang 4.0.1 (tags/RELEASE_401/final)]
-# Embedded file name: /Users/slothyubo/Desktop/git-repo/gmailer-python/gmailer_python/gmailer.py
-# Compiled at: 2021-02-15 00:38:06
-# Size of source mod 2**32: 3169 bytes
 import smtplib
 from email.mime.text import MIMEText
 from email.utils import formatdate
@@ -86,4 +79,3 @@ class Gmailer:
         subject = self._set_subject(subject=subject)
         return (
          to_addr, body, cc, bcc, subject)
-# okay decompiling __pycache__/gmailer.cpython-38.pyc
