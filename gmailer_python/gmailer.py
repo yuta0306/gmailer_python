@@ -1,6 +1,9 @@
 import smtplib
-from email.mime.text import MIMEText
+from email import encoders, utils
 from email.utils import formatdate
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from typing import Dict, Final, List, NoReturn, Optional, Union
 
 class Gmailer:
@@ -14,18 +17,38 @@ class Gmailer:
     def create_msg(self, to_addr: Optional[str]=None, body: Optional[str]=None,
                     cc: Optional[str]=None, bcc: Optional[str]=None, subject: Optional[str]=None) -> MIMEText:
         to_addr, body, cc, bcc, subject = self._set_all(to_addr=to_addr, body=body, bcc=bcc, subject=subject)
-        msg = MIMEText(body)
+        msg = MIMEMultipart()
+        body = MIMEText(body)
         msg['Subject'] = subject
         msg['From'] = self.from_addr
         msg['To'] = to_addr
         msg['Cc'] = cc
         msg['Bcc'] = bcc
         msg['Date'] = formatdate()
+        msg.attach(body)
         return msg
 
-    def send(self, to_addr, body: Optional[str]=None, cc: Optional[str]=None,
-            bcc: Optional[str]=None, subject: Optional[str]=None) -> NoReturn:
-        msg = self.create_msg(to_addr=to_addr, body=body, cc=cc, bcc=bcc, subject=subject)
+    def attach_file(self, msg: MIMEText, path: str, ext: Optional[str]=None,
+                    filename: Optional[str]=None) -> MIMEText:
+        if filename is None:
+            filename = path.split('/')[-1]
+        if ext is None:
+            ext = filename.split('.')[-1]
+        
+        attachment = MIMEBase('text', ext)
+        with open(file=filename, mode='rb') as f:
+            attachment.set_payload(f.read())
+        encoders.encode_base64(attachment)
+        attachment.add_header('Content-Disposition', 'attachment', filename=filename)
+        msg.attach(attachment)
+        return msg
+
+    def send(self, to_addr: Optional[str]=None, body: Optional[str]=None, cc: Optional[str]=None,
+            bcc: Optional[str]=None, subject: Optional[str]=None, msg: Optional[MIMEText]=None) -> NoReturn:
+        if msg is None:
+            msg = self.create_msg(to_addr=to_addr, body=body, cc=cc, bcc=bcc, subject=subject)
+        if to_addr is None:
+            to_addr = msg['To']
         smtpobj = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         if self.debug_mode:
             smtpobj.set_debuglevel(2)
