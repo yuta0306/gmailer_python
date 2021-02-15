@@ -4,16 +4,15 @@ from email.utils import formatdate
 from typing import Dict, Final, List, NoReturn, Optional, Union
 
 class Gmailer:
-    MAIL_PARAMS = [
-     'Subject', 'From', 'To', 'Bcc', 'Date']
-    MAIL_PARAMS: Final[List[str]]
+    MAIL_PARAMS: Final[List[str]] = ['Subject', 'From', 'To', 'Cc', 'Bcc', 'Date']
 
     def __init__(self, from_addr: str, pwd: str, debug: bool=False) -> NoReturn:
         self.from_addr = from_addr
         self.pwd = pwd
         self.debug_mode = debug
 
-    def create_msg(self, to_addr: Optional[str]=None, body: Optional[str]=None, cc: Optional[str]=None, bcc: Optional[str]=None, subject: Optional[str]=None) -> MIMEText:
+    def create_msg(self, to_addr: Optional[str]=None, body: Optional[str]=None,
+                    cc: Optional[str]=None, bcc: Optional[str]=None, subject: Optional[str]=None) -> MIMEText:
         to_addr, body, cc, bcc, subject = self._set_all(to_addr=to_addr, body=body, bcc=bcc, subject=subject)
         msg = MIMEText(body)
         msg['Subject'] = subject
@@ -24,7 +23,8 @@ class Gmailer:
         msg['Date'] = formatdate()
         return msg
 
-    def send(self, to_addr, body: Optional[str]=None, cc: Optional[str]=None, bcc: Optional[str]=None, subject: Optional[str]=None):
+    def send(self, to_addr, body: Optional[str]=None, cc: Optional[str]=None,
+            bcc: Optional[str]=None, subject: Optional[str]=None) -> NoReturn:
         msg = self.create_msg(to_addr=to_addr, body=body, cc=cc, bcc=bcc, subject=subject)
         smtpobj = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
         if self.debug_mode:
@@ -71,11 +71,13 @@ class Gmailer:
             raise ValueError(f"expect str, but {type(subject)}")
         return subject
 
-    def _set_all(self, to_addr: Optional[str]=None, body: Optional[str]=None, cc: Optional[str]=None, bcc: Optional[str]=None, subject: Optional[str]=None) -> NoReturn:
+    def _set_all(self, to_addr: Optional[str]=None, body: Optional[str]=None,
+                cc: Optional[str]=None, bcc: Optional[str]=None, subject: Optional[str]=None) -> NoReturn:
         to_addr = self._set_to_addr(to_addr=to_addr)
         body = self._set_body(body=body)
         cc = self._set_cc(cc=cc)
         bcc = self._set_bcc(bcc=bcc)
         subject = self._set_subject(subject=subject)
         return (
-         to_addr, body, cc, bcc, subject)
+            to_addr, body, cc, bcc, subject
+        )
