@@ -4,7 +4,7 @@ from email.utils import formatdate
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from typing import Dict, Final, List, NoReturn, Optional, Union
+from typing import Dict, Final, List, NoReturn, Optional, Tuple, Union
 
 class Gmailer:
     MAIL_PARAMS: Final[List[str]] = ['Subject', 'From', 'To', 'Cc', 'Bcc', 'Date']
@@ -45,6 +45,10 @@ class Gmailer:
 
     def send(self, to_addr: Optional[str]=None, body: Optional[str]=None, cc: Optional[str]=None,
             bcc: Optional[str]=None, subject: Optional[str]=None, msg: Optional[MIMEText]=None) -> NoReturn:
+
+        if msg is None and to_addr is None:
+            raise ValueError('You need to_addr or msg')
+
         if msg is None:
             msg = self.create_msg(to_addr=to_addr, body=body, cc=cc, bcc=bcc, subject=subject)
         if to_addr is None:
@@ -95,7 +99,7 @@ class Gmailer:
         return subject
 
     def _set_all(self, to_addr: Optional[str]=None, body: Optional[str]=None,
-                cc: Optional[str]=None, bcc: Optional[str]=None, subject: Optional[str]=None) -> NoReturn:
+                cc: Optional[str]=None, bcc: Optional[str]=None, subject: Optional[str]=None) -> Tuple[str]:
         to_addr = self._set_to_addr(to_addr=to_addr)
         body = self._set_body(body=body)
         cc = self._set_cc(cc=cc)
