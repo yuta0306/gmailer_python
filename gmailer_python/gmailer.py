@@ -36,7 +36,7 @@ class Gmailer:
             ext = filename.split('.')[-1]
         
         attachment = MIMEBase('text', ext)
-        with open(file=filename, mode='rb') as f:
+        with open(file=path, mode='rb') as f:
             attachment.set_payload(f.read())
         encoders.encode_base64(attachment)
         attachment.add_header('Content-Disposition', 'attachment', filename=filename)
